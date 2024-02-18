@@ -1,0 +1,44 @@
+x-common-environments: &common-environments
+  TZ: Asia/Bangkok
+  LANG: C.UTF-8
+  LANG_ALL: C.UTF-8
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: air.Dockerfile
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+    environment:
+      <<: *common-environments
+    command: ["air", "-c", ".air.toml"]
+    volumes:
+      - .:/app
+
+  redis:
+    image: docker.dragonflydb.io/dragonflydb/dragonfly
+    ulimits:
+      memlock: -1
+    volumes:
+      - ./tmp/dragonfly-data:/data
+
+  postgres:
+    image: postgres
+    environment:
+      <<: *common-environments
+      POSTGRES_USER: "${POSTGRES_USER:-postgres}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-postgres}"
+      POSTGRES_DB: "${POSTGRES_DB:-postgres}"
+    volumes:
+      - ./tmp/postgres-data:/var/lib/postgresql/data
+
+  dbgate:
+    image: dbgate/dbgate
+    environment:
+      <<: *common-environments
+    volumes:
+      - ./tmp/dbgate-data:/root/.dbgate
+    ports:
+      - "3001:3000"
