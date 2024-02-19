@@ -20,7 +20,7 @@ func (r *userRepository) ReadUserDetails(userID, username, email string) (user e
 
 	err = dbTx.First(&user).Error
 	if err != nil {
-		r.Logger.Error("GetUserDetails", "error", err)
+		r.Logger.Error("ReadUserDetails", "error", err)
 		return user, err
 	}
 

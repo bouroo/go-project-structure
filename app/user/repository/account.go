@@ -69,7 +69,7 @@ func (r *userRepository) DeleteUserAccount(userID string) (err error) {
 
 	err = dbTx.Delete(&entity.UserAccount{ID: userID}).Error
 	if err != nil {
-		r.Logger.Error("DeleteUser", "error", err)
+		r.Logger.Error("DeleteUserAccount", "error", err)
 		return err
 	}
 

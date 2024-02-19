@@ -19,6 +19,10 @@ func (r *userRepository) CreateUserProfile(userProfile *entity.UserProfile) (err
 
 func (r *userRepository) ReadUserProfile(userID string) (userProfile entity.UserProfile, err error) {
 	err = r.DB.First(&userProfile, userID).Error
+	if err != nil {
+		r.Logger.Error("ReadUserProfile", "error", err)
+		return userProfile, err
+	}
 	return
 }
 

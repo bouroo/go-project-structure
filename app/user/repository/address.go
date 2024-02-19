@@ -8,7 +8,7 @@ func (r *userRepository) CreateUserAddress(address *entity.UserAddress) (err err
 
 	err = dbTx.Create(address).Error
 	if err != nil {
-		r.Logger.Error("CreateAddress", "error", err)
+		r.Logger.Error("CreateUserAddress", "error", err)
 		return err
 	}
 
@@ -28,7 +28,7 @@ func (r *userRepository) UpdateUserAddress(addressID string, address entity.User
 
 	err = dbTx.Model(&entity.UserAddress{ID: addressID}).Updates(address).Error
 	if err != nil {
-		r.Logger.Error("UpdateAddress", "error", err)
+		r.Logger.Error("UpdateUserAddress", "error", err)
 		return err
 	}
 
@@ -41,6 +41,10 @@ func (r *userRepository) DeleteUserAddress(addressID string) (err error) {
 	defer dbTx.Rollback()
 
 	err = dbTx.Delete(&entity.UserAddress{}, addressID).Error
+	if err != nil {
+		r.Logger.Error("DeleteUserAddress", "error", err)
+		return err
+	}
 
 	return dbTx.Commit().Error
 }
