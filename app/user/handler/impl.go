@@ -34,7 +34,7 @@ func (u *userHandler) GetUserDetails(c echo.Context) (err error) {
 
 	userID := c.Get("user_id").(string)
 
-	userDetails, err := u.userUsecase.GetUserDetails(userID, "", "")
+	userDetails, err := u.userUsecase.ReadUserDetails(userID, "", "")
 	if err != nil {
 		response.Message = err.Error()
 		return c.JSON(response.Code, response)
@@ -65,7 +65,7 @@ func (u *userHandler) UpdateProfile(c echo.Context) (err error) {
 		return c.JSON(response.Code, response)
 	}
 
-	err = u.userUsecase.UpdateUser(userID, entity.UserAccount{
+	err = u.userUsecase.UpdateUserAccount(userID, entity.UserAccount{
 		UserProfile: entity.UserProfile{
 			FirstName: userProfile.FirstName,
 			LastName:  userProfile.LastName,

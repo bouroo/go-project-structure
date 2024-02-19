@@ -19,27 +19,27 @@ func NewUserUsecase(userRepo user.Repository, logger *slog.Logger) user.Usecase 
 	}
 }
 
-func (u *userUsecase) CreateUser(user entity.UserAccount) (err error) {
+func (u *userUsecase) CreateUserAccount(user entity.UserAccount) (err error) {
 
 	return u.userRepo.CreateUserAccount(&user)
 }
 
-func (u *userUsecase) GetUserAccount(userID, username, email string) (user entity.UserAccount, err error) {
+func (u *userUsecase) ReadUserAccount(userID, username, email string) (user entity.UserAccount, err error) {
 
 	return u.userRepo.ReadUserAccount(userID, username, email)
 }
 
-func (u *userUsecase) GetUserDetails(userID, username, email string) (user entity.UserAccount, err error) {
-
-	return u.userRepo.ReadUserDetails(userID, username, email)
-}
-
-func (u *userUsecase) UpdateUser(userID string, user entity.UserAccount) (err error) {
+func (u *userUsecase) UpdateUserAccount(userID string, user entity.UserAccount) (err error) {
 
 	return u.userRepo.UpdateUserAccount(userID, user)
 }
 
-func (u *userUsecase) DeleteUser(userID string) (err error) {
+func (u *userUsecase) DeleteUserAccount(userID string) (err error) {
 
 	return u.userRepo.DeleteUserAccount(userID)
+}
+
+func (u *userUsecase) ReadUserDetails(userID, username, email string) (user entity.UserAccount, err error) {
+
+	return u.userRepo.ReadUserDetails(userID, username, email)
 }

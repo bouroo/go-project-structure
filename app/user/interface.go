@@ -22,11 +22,12 @@ type Repository interface {
 }
 
 type Usecase interface {
-	CreateUser(user entity.UserAccount) (err error)
-	GetUserAccount(userID, username, email string) (user entity.UserAccount, err error)
-	GetUserDetails(userID, username, email string) (user entity.UserAccount, err error)
-	UpdateUser(userID string, user entity.UserAccount) (err error)
-	DeleteUser(userID string) (err error)
+	CreateUserAccount(user entity.UserAccount) (err error)
+	ReadUserAccount(userID, username, email string) (user entity.UserAccount, err error)
+	UpdateUserAccount(userID string, user entity.UserAccount) (err error)
+	DeleteUserAccount(userID string) (err error)
+
+	ReadUserDetails(userID, username, email string) (user entity.UserAccount, err error)
 }
 
 type Handler interface {
