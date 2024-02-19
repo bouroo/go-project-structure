@@ -40,7 +40,7 @@ func (UserProfile) TableName() string {
 
 type UserAddress struct {
 	ID        string         `gorm:"size:26;primary_key"`
-	UserId    string         `gorm:"size:26;index"`
+	UserID    string         `gorm:"size:26;index"`
 	Number    string         `gorm:"size:50"`
 	Street    string         `gorm:"size:50"`
 	City      string         `gorm:"size:50"`
