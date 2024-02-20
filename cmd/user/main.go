@@ -107,11 +107,6 @@ func main() {
 	e.HTTPErrorHandler = helper.CustomHTTPErrorHandler
 	e.Validator = &helper.CustomValidator{Validator: validator.New()}
 
-	e.GET("/", func(c echo.Context) error {
-		time.Sleep(5 * time.Second)
-		return c.JSON(http.StatusOK, "OK")
-	})
-
 	userRepository := repository.NewUserRepository(dbConn, logger)
 	err = userRepository.MigrateTable()
 	if err != nil {

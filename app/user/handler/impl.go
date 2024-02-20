@@ -25,6 +25,13 @@ func NewUserHandler(userUsecase domain.UserUsecase, logger *slog.Logger) domain.
 func (h *userHandler) RegisterRoute(e *echo.Echo) *echo.Echo {
 	router := e.Group("/api/v1/users")
 
+	router.GET("/", func(c echo.Context) (err error) {
+		return c.JSON(http.StatusOK, model.GeneralResponse{
+			Code:   http.StatusOK,
+			Status: "success",
+		})
+	})
+
 	router.GET("/me", h.GetUserDetails)
 
 	return e
