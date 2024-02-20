@@ -1,8 +1,11 @@
-package user
+package domain
 
-import "github.com/bouroo/go-clean-arch/entity"
+import (
+	"github.com/bouroo/go-clean-arch/entity"
+	"github.com/labstack/echo/v4"
+)
 
-type Repository interface {
+type UserRepository interface {
 	CreateUserAccount(user *entity.UserAccount) (err error)
 	ReadUserAccount(userID, username, email string) (user entity.UserAccount, err error)
 	UpdateUserAccount(userID string, user entity.UserAccount) (err error)
@@ -21,7 +24,7 @@ type Repository interface {
 	ReadUserDetails(userID, username, email string) (user entity.UserAccount, err error)
 }
 
-type Usecase interface {
+type UserUsecase interface {
 	CreateUserAccount(user *entity.UserAccount) (err error)
 	ReadUserAccount(userID, username, email string) (user entity.UserAccount, err error)
 	UpdateUserAccount(userID string, user entity.UserAccount) (err error)
@@ -40,5 +43,6 @@ type Usecase interface {
 	ReadUserDetails(userID, username, email string) (user entity.UserAccount, err error)
 }
 
-type Handler interface {
+type UserHandler interface {
+	RegisterRoute(e *echo.Echo) *echo.Echo
 }

@@ -3,17 +3,23 @@ package handler
 import (
 	"log/slog"
 
-	"github.com/bouroo/go-clean-arch/app/auth"
+	"github.com/bouroo/go-clean-arch/domain"
+	"github.com/labstack/echo/v4"
 )
 
 type authHandler struct {
-	authUsecase auth.Usecase
+	authUsecase domain.AuthUsecase
 	Logger      *slog.Logger
 }
 
-func NewAuthHandler(authUsecase auth.Usecase, logger *slog.Logger) auth.Handler {
+func NewAuthHandler(authUsecase domain.AuthUsecase, logger *slog.Logger) domain.AuthHandler {
 	return &authHandler{
 		authUsecase: authUsecase,
 		Logger:      logger,
 	}
+}
+
+func (u *authHandler) RegisterRoute(e *echo.Echo) *echo.Echo {
+
+	return e
 }

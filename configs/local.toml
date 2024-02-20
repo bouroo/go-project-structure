@@ -1,0 +1,21 @@
+[app]
+env = "local"
+debug = true
+listen = "localhost"
+[app.port]
+http = 8080
+grpc = 8443
+
+[db]
+[db.postgres]
+host = "localhost"
+port = 5432
+user = "postgres"
+password = "postgres"
+database = "postgres"
+
+[db.redis]
+host = "localhost"
+port = 6379
+password = ""
+database = 0

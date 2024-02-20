@@ -3,15 +3,15 @@ package usecase
 import (
 	"log/slog"
 
-	"github.com/bouroo/go-clean-arch/app/user"
+	"github.com/bouroo/go-clean-arch/domain"
 )
 
 type userUsecase struct {
-	userRepo user.Repository
+	userRepo domain.UserRepository
 	Logger   *slog.Logger
 }
 
-func NewUserUsecase(userRepo user.Repository, logger *slog.Logger) user.Usecase {
+func NewUserUsecase(userRepo domain.UserRepository, logger *slog.Logger) domain.UserUsecase {
 	return &userUsecase{
 		userRepo: userRepo,
 		Logger:   logger,

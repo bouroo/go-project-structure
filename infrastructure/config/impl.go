@@ -39,10 +39,9 @@ func (v *viperConfig) LoadConfig(configName string) (err error) {
 	v.viper.SetDefault("app.port.http", "8080")
 	v.viper.SetDefault("app.debug", false)
 
-	configPath := "./configs"
-	if _, err := os.Stat(configPath); err == nil {
+	if _, err := os.Stat(v.configPath); err == nil {
 		// add config files path
-		v.viper.AddConfigPath(configPath)
+		v.viper.AddConfigPath(v.configPath)
 
 		// REQUIRED if the config file does not have the extension in the name
 		v.viper.SetConfigType("toml")
@@ -53,12 +52,14 @@ func (v *viperConfig) LoadConfig(configName string) (err error) {
 		// find and read common config file
 		v.viper.ReadInConfig()
 
-		// name of config file (without extension)
-		v.viper.SetConfigName(v.configName)
+		if _, err := os.Stat(v.configName); err == nil {
+			// name of config file (without extension)
+			v.viper.SetConfigName(v.configName)
 
-		// Find and read the config file
-		if err = v.viper.MergeInConfig(); err != nil {
-			return err
+			// Find and read the config file
+			if err = v.viper.MergeInConfig(); err != nil {
+				return err
+			}
 		}
 	}
 

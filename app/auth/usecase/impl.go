@@ -3,17 +3,19 @@ package usecase
 import (
 	"log/slog"
 
-	"github.com/bouroo/go-clean-arch/app/auth"
+	"github.com/bouroo/go-clean-arch/domain"
 )
 
 type authUsecase struct {
-	authRepo auth.Repository
+	authRepo domain.AuthRepository
+	userRepo domain.UserRepository
 	Logger   *slog.Logger
 }
 
-func NewAuthUsecase(authRepo auth.Repository, logger *slog.Logger) auth.Usecase {
+func NewAuthUsecase(authRepo domain.AuthRepository, userRepo domain.UserRepository, logger *slog.Logger) domain.AuthUsecase {
 	return &authUsecase{
 		authRepo: authRepo,
+		userRepo: userRepo,
 		Logger:   logger,
 	}
 }

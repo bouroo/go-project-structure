@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
@@ -36,19 +37,22 @@ func main() {
 	appConfig := config.NewAppConfig(CONFIG_PATH)
 	if err = appConfig.LoadConfig(RUN_ENV); err != nil {
 		log.Panic(err)
-	}
-	if err = appConfig.WatchConfig(); err != nil {
-		log.Panic(err)
+	} else {
+		if err = appConfig.WatchConfig(); err != nil {
+			log.Panic(err)
+		}
 	}
 
 	// Setup
 	e := echo.New()
-	e.Logger.SetLevel(log.INFO)
 	e.JSONSerializer = &helper.CustomJSONSerializer{}
 
 	// App middleware
 	e.Use(echoMiddleware.Recover())
-	e.Use(echoMiddleware.Logger())
+	if appConfig.GetViper().GetBool("app.debug") {
+		e.Logger.SetLevel(log.DEBUG)
+		e.Use(echoMiddleware.Logger())
+	}
 	e.Use(echoMiddleware.Secure())
 	e.Use(echoMiddleware.RequestIDWithConfig(echoMiddleware.RequestIDConfig{
 		Generator:        helper.CustomRequestIDGenerator,
@@ -67,8 +71,9 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	// Start server
+	listenFmt := `%s:%d`
 	go func() {
-		if err := e.Start(":8080"); err != nil && err != http.ErrServerClosed {
+		if err := e.Start(fmt.Sprintf(listenFmt, appConfig.GetViper().GetString("app.listen"), appConfig.GetViper().GetInt("app.port.http"))); err != nil && err != http.ErrServerClosed {
 			e.Logger.Fatal("shutting down the server")
 		}
 	}()

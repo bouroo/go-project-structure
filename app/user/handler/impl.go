@@ -4,22 +4,27 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/bouroo/go-clean-arch/app/user"
+	"github.com/bouroo/go-clean-arch/domain"
 	"github.com/bouroo/go-clean-arch/entity"
 	"github.com/bouroo/go-clean-arch/model"
 	"github.com/labstack/echo/v4"
 )
 
 type userHandler struct {
-	userUsecase user.Usecase
+	userUsecase domain.UserUsecase
 	Logger      *slog.Logger
 }
 
-func NewUserHandler(userUsecase user.Usecase, logger *slog.Logger) user.Handler {
+func NewUserHandler(userUsecase domain.UserUsecase, logger *slog.Logger) domain.UserHandler {
 	return &userHandler{
 		userUsecase: userUsecase,
 		Logger:      logger,
 	}
+}
+
+func (u *userHandler) RegisterRoute(e *echo.Echo) *echo.Echo {
+	e.POST("/user", u.CreateUser)
+	return e
 }
 
 func (u *userHandler) CreateUser(c echo.Context) (err error) {
