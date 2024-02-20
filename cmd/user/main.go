@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/bouroo/go-clean-arch/helper"
 	"github.com/bouroo/go-clean-arch/middleware"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
@@ -19,20 +20,20 @@ func main() {
 	// Setup
 	e := echo.New()
 	e.Logger.SetLevel(log.INFO)
-	e.JSONSerializer = &middleware.CustomJSONSerializer{}
+	e.JSONSerializer = &helper.CustomJSONSerializer{}
 
 	// App middleware
 	e.Use(echoMiddleware.Recover())
 	e.Use(echoMiddleware.Logger())
 	e.Use(echoMiddleware.Secure())
 	e.Use(echoMiddleware.RequestIDWithConfig(echoMiddleware.RequestIDConfig{
-		Generator:        middleware.CustomRequestIDGenerator,
-		RequestIDHandler: middleware.CustomRequestIDHandler,
+		Generator:        helper.CustomRequestIDGenerator,
+		RequestIDHandler: helper.CustomRequestIDHandler,
 	}))
 
 	// Custom app handler
 	e.HTTPErrorHandler = middleware.CustomHTTPErrorHandler
-	e.Validator = &middleware.CustomValidator{Validator: validator.New()}
+	e.Validator = &helper.CustomValidator{Validator: validator.New()}
 
 	e.GET("/", func(c echo.Context) error {
 		time.Sleep(5 * time.Second)

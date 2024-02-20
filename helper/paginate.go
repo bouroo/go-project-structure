@@ -1,4 +1,4 @@
-package dbfunc
+package helper
 
 import "gorm.io/gorm"
 
