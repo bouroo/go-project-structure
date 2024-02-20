@@ -14,7 +14,7 @@ type PostgresOptions struct {
 	User         string
 	Password     string
 	DBname       string
-	SSLmode      string
+	SSLMode      string
 	Timezone     string
 	MaxIdle      int
 	MaxOpen      int
@@ -38,8 +38,8 @@ func (opt *PostgresOptions) ApplyDefault() *PostgresOptions {
 	if len(opt.DBname) == 0 {
 		opt.DBname = "postgres"
 	}
-	if len(opt.SSLmode) == 0 {
-		opt.SSLmode = "disable"
+	if len(opt.SSLMode) == 0 {
+		opt.SSLMode = "disable"
 	}
 	if len(opt.Timezone) == 0 {
 		opt.Timezone = "Asia/Bangkok"
@@ -61,7 +61,7 @@ func NewPostgresConn(opts PostgresOptions) (db *gorm.DB, err error) {
 	opts.ApplyDefault()
 
 	dsn := "host=%s user=%s password=%s dbname=%s port=%d sslmode=%s TimeZone=%s"
-	dsn = fmt.Sprintf(dsn, opts.Host, opts.User, opts.Password, opts.DBname, opts.Port, opts.SSLmode, opts.Timezone)
+	dsn = fmt.Sprintf(dsn, opts.Host, opts.User, opts.Password, opts.DBname, opts.Port, opts.SSLMode, opts.Timezone)
 
 	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {

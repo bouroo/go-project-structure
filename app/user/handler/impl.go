@@ -22,12 +22,15 @@ func NewUserHandler(userUsecase domain.UserUsecase, logger *slog.Logger) domain.
 	}
 }
 
-func (u *userHandler) RegisterRoute(e *echo.Echo) *echo.Echo {
-	e.POST("/user", u.CreateUser)
+func (h *userHandler) RegisterRoute(e *echo.Echo) *echo.Echo {
+	router := e.Group("/api/v1/users")
+
+	router.GET("/me", h.GetUserDetails)
+
 	return e
 }
 
-func (u *userHandler) CreateUser(c echo.Context) (err error) {
+func (h *userHandler) CreateUser(c echo.Context) (err error) {
 	response := model.GeneralResponse{
 		Code:   http.StatusBadRequest,
 		Status: "fail",
@@ -40,7 +43,7 @@ func (u *userHandler) CreateUser(c echo.Context) (err error) {
 		return c.JSON(response.Code, response)
 	}
 
-	err = u.userUsecase.CreateUserAccount(&entity.UserAccount{
+	err = h.userUsecase.CreateUserAccount(&entity.UserAccount{
 		Email:    user.Username,
 		Password: user.Password,
 	})
@@ -52,7 +55,7 @@ func (u *userHandler) CreateUser(c echo.Context) (err error) {
 	return c.JSON(response.Code, response)
 }
 
-func (u *userHandler) GetUserDetails(c echo.Context) (err error) {
+func (h *userHandler) GetUserDetails(c echo.Context) (err error) {
 	response := model.GeneralResponse{
 		Code:   http.StatusBadRequest,
 		Status: "fail",
@@ -60,7 +63,7 @@ func (u *userHandler) GetUserDetails(c echo.Context) (err error) {
 
 	userID := c.Get("user_id").(string)
 
-	userDetails, err := u.userUsecase.ReadUserDetails(userID, "", "")
+	userDetails, err := h.userUsecase.ReadUserDetails(userID, "")
 	if err != nil {
 		response.Message = err.Error()
 		return c.JSON(response.Code, response)
@@ -77,7 +80,7 @@ func (u *userHandler) GetUserDetails(c echo.Context) (err error) {
 	return c.JSON(response.Code, response)
 }
 
-func (u *userHandler) UpdateProfile(c echo.Context) (err error) {
+func (h *userHandler) UpdateProfile(c echo.Context) (err error) {
 	response := model.GeneralResponse{
 		Code:   http.StatusBadRequest,
 		Status: "fail",
@@ -91,7 +94,7 @@ func (u *userHandler) UpdateProfile(c echo.Context) (err error) {
 		return c.JSON(response.Code, response)
 	}
 
-	err = u.userUsecase.UpdateUserProfile(userID, entity.UserProfile{
+	err = h.userUsecase.UpdateUserProfile(userID, entity.UserProfile{
 		FirstName: userProfile.FirstName,
 		LastName:  userProfile.LastName,
 		Phone:     userProfile.Phone,

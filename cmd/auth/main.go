@@ -10,9 +10,13 @@ import (
 	"syscall"
 	"time"
 
+	authHandler "github.com/bouroo/go-clean-arch/app/auth/handler"
+	authRepository "github.com/bouroo/go-clean-arch/app/auth/repository"
+	authUsecase "github.com/bouroo/go-clean-arch/app/auth/usecase"
+	userRepository "github.com/bouroo/go-clean-arch/app/user/repository"
 	"github.com/bouroo/go-clean-arch/helper"
+	"github.com/bouroo/go-clean-arch/infrastructure"
 	"github.com/bouroo/go-clean-arch/infrastructure/config"
-	"github.com/bouroo/go-clean-arch/middleware"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
@@ -46,8 +50,42 @@ func main() {
 		}
 	}
 
+	// is debug mode with APP_DEBUG = true
+	var handlerOptions slog.HandlerOptions
+	logWriter := helper.LogWriter{
+		ConsolePrint: true,
+	}
+	if appConfig.GetViper().GetBool("app.debug") {
+		handlerOptions = slog.HandlerOptions{
+			AddSource: true,
+			Level:     slog.LevelDebug,
+		}
+	}
+
+	if err = appConfig.CheckConfigs(config.KEYS_USED); err != nil {
+		log.Panic(err)
+	}
+
+	// set logger target
+	logger := slog.New(
+		slog.NewTextHandler(
+			logWriter,
+			&handlerOptions,
+		),
+	)
+	slog.SetDefault(logger)
+
+	dbConn, err := infrastructure.NewPostgresConn(infrastructure.PostgresOptions{
+		Host: appConfig.GetViper().GetString("db.postgres.host"),
+		Port: appConfig.GetViper().GetInt("db.postgres.port"),
+	})
+	if err != nil {
+		log.Panic(err)
+	}
+
 	// Setup
 	e := echo.New()
+	e.Logger.SetLevel(log.INFO)
 	e.JSONSerializer = &helper.CustomJSONSerializer{}
 
 	// App middleware
@@ -63,13 +101,20 @@ func main() {
 	}))
 
 	// Custom app handler
-	e.HTTPErrorHandler = middleware.CustomHTTPErrorHandler
+	e.HTTPErrorHandler = helper.CustomHTTPErrorHandler
 	e.Validator = &helper.CustomValidator{Validator: validator.New()}
 
 	e.GET("/", func(c echo.Context) error {
 		time.Sleep(5 * time.Second)
 		return c.JSON(http.StatusOK, "OK")
 	})
+
+	userRepository := userRepository.NewUserRepository(dbConn, logger)
+
+	authRepository := authRepository.NewAuthRepository(dbConn, logger)
+	authUsecase := authUsecase.NewAuthUsecase(authRepository, userRepository, logger)
+	authHandler := authHandler.NewAuthHandler(authUsecase, logger)
+	authHandler.RegisterRoute(e)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()

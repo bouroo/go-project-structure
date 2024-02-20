@@ -2,7 +2,7 @@ package repository
 
 import "github.com/bouroo/go-clean-arch/entity"
 
-func (r *userRepository) ReadUserDetails(userID, username, email string) (user entity.UserAccount, err error) {
+func (r *userRepository) ReadUserDetails(userID, email string) (user entity.UserAccount, err error) {
 
 	dbTx := r.DB.Model(&entity.UserAccount{})
 
@@ -14,10 +14,6 @@ func (r *userRepository) ReadUserDetails(userID, username, email string) (user e
 		dbTx.Where(entity.UserAccount{ID: userID})
 	} else if len(email) != 0 {
 		dbTx.Where(entity.UserAccount{Email: email})
-	}
-
-	if len(username) != 0 {
-		dbTx.Where(entity.UserAccount{Email: username})
 	}
 
 	err = dbTx.First(&user).Error

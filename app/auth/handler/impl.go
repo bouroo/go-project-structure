@@ -19,7 +19,8 @@ func NewAuthHandler(authUsecase domain.AuthUsecase, logger *slog.Logger) domain.
 	}
 }
 
-func (u *authHandler) RegisterRoute(e *echo.Echo) *echo.Echo {
-
+func (h *authHandler) RegisterRoute(e *echo.Echo) *echo.Echo {
+	router := e.Group("/api/v1/auth")
+	router.POST("/signin", h.SignIn)
 	return e
 }

@@ -9,7 +9,7 @@ type UserRepository interface {
 	MigrateTable() (err error)
 
 	CreateUserAccount(user *entity.UserAccount) (err error)
-	ReadUserAccount(userID, username, email string) (user entity.UserAccount, err error)
+	ReadUserAccount(userID, email string) (user entity.UserAccount, err error)
 	UpdateUserAccount(userID string, user entity.UserAccount) (err error)
 	DeleteUserAccount(userID string) (err error)
 
@@ -23,12 +23,12 @@ type UserRepository interface {
 	UpdateUserAddress(userAddressID string, userAddress entity.UserAddress) (err error)
 	DeleteUserAddress(userAddressID string) (err error)
 
-	ReadUserDetails(userID, username, email string) (user entity.UserAccount, err error)
+	ReadUserDetails(userID, email string) (user entity.UserAccount, err error)
 }
 
 type UserUsecase interface {
 	CreateUserAccount(user *entity.UserAccount) (err error)
-	ReadUserAccount(userID, username, email string) (user entity.UserAccount, err error)
+	ReadUserAccount(userID, email string) (user entity.UserAccount, err error)
 	UpdateUserAccount(userID string, user entity.UserAccount) (err error)
 	DeleteUserAccount(userID string) (err error)
 
@@ -42,7 +42,7 @@ type UserUsecase interface {
 	UpdateUserAddress(userAddressID string, userAddress entity.UserAddress) (err error)
 	DeleteUserAddress(userAddressID string) (err error)
 
-	ReadUserDetails(userID, username, email string) (user entity.UserAccount, err error)
+	ReadUserDetails(userID, email string) (user entity.UserAccount, err error)
 }
 
 type UserHandler interface {

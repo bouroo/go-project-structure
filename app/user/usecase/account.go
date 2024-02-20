@@ -7,7 +7,7 @@ import (
 
 func (u *userUsecase) CreateUserAccount(user *entity.UserAccount) (err error) {
 
-	_, err = u.userRepo.ReadUserAccount("", user.Email, "")
+	_, err = u.userRepo.ReadUserAccount("", user.Email)
 
 	user.Password, err = helper.HashPassword(user.Password)
 	if err != nil {
@@ -16,9 +16,9 @@ func (u *userUsecase) CreateUserAccount(user *entity.UserAccount) (err error) {
 	return u.userRepo.CreateUserAccount(user)
 }
 
-func (u *userUsecase) ReadUserAccount(userID, username, email string) (user entity.UserAccount, err error) {
+func (u *userUsecase) ReadUserAccount(userID, email string) (user entity.UserAccount, err error) {
 
-	return u.userRepo.ReadUserAccount(userID, username, email)
+	return u.userRepo.ReadUserAccount(userID, email)
 }
 
 func (u *userUsecase) UpdateUserAccount(userID string, user entity.UserAccount) (err error) {

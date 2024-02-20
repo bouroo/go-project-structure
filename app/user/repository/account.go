@@ -19,7 +19,7 @@ func (r *userRepository) CreateUserAccount(user *entity.UserAccount) (err error)
 	return dbTx.Commit().Error
 }
 
-func (r *userRepository) ReadUserAccount(userID, username, email string) (user entity.UserAccount, err error) {
+func (r *userRepository) ReadUserAccount(userID, email string) (user entity.UserAccount, err error) {
 
 	selected := struct {
 		Username string
@@ -34,10 +34,6 @@ func (r *userRepository) ReadUserAccount(userID, username, email string) (user e
 		dbTx.Where(entity.UserAccount{ID: userID})
 	} else if len(email) != 0 {
 		dbTx.Where(entity.UserAccount{Email: email})
-	}
-
-	if len(username) != 0 {
-		dbTx.Where(entity.UserAccount{Email: username})
 	}
 
 	err = dbTx.First(&user).Error

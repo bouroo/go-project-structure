@@ -16,7 +16,6 @@ import (
 	"github.com/bouroo/go-clean-arch/helper"
 	"github.com/bouroo/go-clean-arch/infrastructure"
 	"github.com/bouroo/go-clean-arch/infrastructure/config"
-	"github.com/bouroo/go-clean-arch/middleware"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
@@ -50,6 +49,10 @@ func main() {
 		}
 	}
 
+	if err = appConfig.CheckConfigs(config.KEYS_USED); err != nil {
+		log.Panic(err)
+	}
+
 	// is debug mode with APP_DEBUG = true
 	var handlerOptions slog.HandlerOptions
 	logWriter := helper.LogWriter{
@@ -72,8 +75,12 @@ func main() {
 	slog.SetDefault(logger)
 
 	dbConn, err := infrastructure.NewPostgresConn(infrastructure.PostgresOptions{
-		Host: appConfig.GetViper().GetString("db.postgres.host"),
-		Port: appConfig.GetViper().GetInt("db.postgres.port"),
+		Host:     appConfig.GetViper().GetString("db.postgres.host"),
+		Port:     appConfig.GetViper().GetInt("db.postgres.port"),
+		User:     appConfig.GetViper().GetString("db.postgres.user"),
+		Password: appConfig.GetViper().GetString("db.postgres.password"),
+		DBname:   appConfig.GetViper().GetString("db.postgres.database"),
+		Debug:    appConfig.GetViper().GetBool("app.debug"),
 	})
 	if err != nil {
 		log.Panic(err)
@@ -97,7 +104,7 @@ func main() {
 	}))
 
 	// Custom app handler
-	e.HTTPErrorHandler = middleware.CustomHTTPErrorHandler
+	e.HTTPErrorHandler = helper.CustomHTTPErrorHandler
 	e.Validator = &helper.CustomValidator{Validator: validator.New()}
 
 	e.GET("/", func(c echo.Context) error {
