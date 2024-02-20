@@ -52,14 +52,12 @@ func (v *viperConfig) LoadConfig(configName string) (err error) {
 		// find and read common config file
 		v.viper.ReadInConfig()
 
-		if _, err := os.Stat(v.configName); err == nil {
-			// name of config file (without extension)
-			v.viper.SetConfigName(v.configName)
+		// name of config file (without extension)
+		v.viper.SetConfigName(v.configName)
 
-			// Find and read the config file
-			if err = v.viper.MergeInConfig(); err != nil {
-				return err
-			}
+		// Find and read the config file
+		if err = v.viper.MergeInConfig(); err != nil {
+			return err
 		}
 	}
 

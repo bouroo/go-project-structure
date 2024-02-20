@@ -18,11 +18,19 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
   user:
+    depends_on:
+      traefik:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     build:
       context: .
       dockerfile: air.Dockerfile
     environment:
       <<: *common-environments
+      RUN_ENV: "dev"
     command: ["air", "-c", "user.air.toml"]
     labels:
       - "traefik.enable=true"
@@ -34,11 +42,21 @@ services:
       - .:/app
 
   auth:
+    depends_on:
+      user:
+        condition: service_started
+      traefik:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     build:
       context: .
       dockerfile: air.Dockerfile
     environment:
       <<: *common-environments
+      RUN_ENV: "dev"
     command: ["air", "-c", "auth.air.toml"]
     labels:
       - "traefik.enable=true"
@@ -55,6 +73,13 @@ services:
       memlock: -1
     volumes:
       - ./tmp/dragonfly-data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD-SHELL", "/usr/local/bin/healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   postgres:
     image: postgres
@@ -65,8 +90,22 @@ services:
       POSTGRES_DB: "${POSTGRES_DB:-postgres}"
     volumes:
       - ./tmp/postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   dbgate:
+    depends_on:
+      traefik:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     image: dbgate/dbgate
     environment:
       <<: *common-environments

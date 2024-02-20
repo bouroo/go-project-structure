@@ -30,14 +30,14 @@ func (r *userRepository) ReadUserAccount(userID, username, email string) (user e
 
 	dbTx.Select(&selected)
 
-	dbTx.Joins("UserProfile", r.DB.Where(&entity.UserProfile{Email: email}))
-
 	if len(userID) != 0 {
 		dbTx.Where(entity.UserAccount{ID: userID})
+	} else if len(email) != 0 {
+		dbTx.Where(entity.UserAccount{Email: email})
 	}
 
 	if len(username) != 0 {
-		dbTx.Where(entity.UserAccount{Username: username})
+		dbTx.Where(entity.UserAccount{Email: username})
 	}
 
 	err = dbTx.First(&user).Error

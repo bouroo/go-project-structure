@@ -3,7 +3,7 @@ testdata_dir = "testdata"
 tmp_dir = "tmp"
 
 [build]
-args_bin = ["--env=local"]
+args_bin = []
 bin = "./tmp/app.bin"
 cmd = "go build -installsuffix 'static' -o ./tmp/app.bin ./cmd/auth"
 delay = 800

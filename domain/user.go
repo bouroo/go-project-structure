@@ -6,6 +6,8 @@ import (
 )
 
 type UserRepository interface {
+	MigrateTable() (err error)
+
 	CreateUserAccount(user *entity.UserAccount) (err error)
 	ReadUserAccount(userID, username, email string) (user entity.UserAccount, err error)
 	UpdateUserAccount(userID string, user entity.UserAccount) (err error)

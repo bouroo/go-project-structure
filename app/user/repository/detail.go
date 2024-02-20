@@ -6,16 +6,18 @@ func (r *userRepository) ReadUserDetails(userID, username, email string) (user e
 
 	dbTx := r.DB.Model(&entity.UserAccount{})
 
-	dbTx.Joins("UserProfile", r.DB.Where(&entity.UserProfile{Email: email}))
+	dbTx.Joins("UserProfile")
 
 	dbTx.Joins("UserAddress")
 
 	if len(userID) != 0 {
 		dbTx.Where(entity.UserAccount{ID: userID})
+	} else if len(email) != 0 {
+		dbTx.Where(entity.UserAccount{Email: email})
 	}
 
 	if len(username) != 0 {
-		dbTx.Where(entity.UserAccount{Username: username})
+		dbTx.Where(entity.UserAccount{Email: username})
 	}
 
 	err = dbTx.First(&user).Error

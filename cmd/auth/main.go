@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -26,13 +27,15 @@ var (
 func main() {
 	var err error
 
-	if RUN_ENV = os.Getenv("ENV"); len(RUN_ENV) == 0 {
+	if RUN_ENV = os.Getenv("RUN_ENV"); len(RUN_ENV) == 0 {
 		RUN_ENV = "local"
 	}
 
 	if CONFIG_PATH = os.Getenv("CONFIG_PATH"); len(CONFIG_PATH) == 0 {
 		CONFIG_PATH = "./configs"
 	}
+
+	slog.Info("starting", "RUN_ENV", RUN_ENV)
 
 	appConfig := config.NewAppConfig(CONFIG_PATH)
 	if err = appConfig.LoadConfig(RUN_ENV); err != nil {

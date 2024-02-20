@@ -9,16 +9,17 @@ import (
 )
 
 type PostgresOptions struct {
-	Host        string
-	Port        int
-	User        string
-	Password    string
-	DBname      string
-	SSLmode     string
-	Timezone    string
-	MaxIdle     int
-	MaxOpen     int
+	Host         string
+	Port         int
+	User         string
+	Password     string
+	DBname       string
+	SSLmode      string
+	Timezone     string
+	MaxIdle      int
+	MaxOpen      int
 	ConnLifetime time.Duration
+	Debug        bool
 }
 
 func (opt *PostgresOptions) ApplyDefault() *PostgresOptions {
@@ -79,5 +80,10 @@ func NewPostgresConn(opts PostgresOptions) (db *gorm.DB, err error) {
 
 	// SetConnMaxLifetime sets the maximum amount of time a connection may be reused.
 	sqlDB.SetConnMaxLifetime(opts.ConnLifetime)
+
+	if opts.Debug {
+		db = db.Debug()
+	}
+
 	return
 }

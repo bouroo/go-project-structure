@@ -21,6 +21,7 @@ type MySQLOptions struct {
 	MaxIdle      int
 	MaxOpen      int
 	ConnLifetime time.Duration
+	Debug        bool
 }
 
 func (opt *MySQLOptions) ApplyDefault() *MySQLOptions {
@@ -83,5 +84,10 @@ func NewMySQLConn(opts MySQLOptions) (db *gorm.DB, err error) {
 
 	// SetConnMaxLifetime sets the maximum amount of time a connection may be reused.
 	sqlDB.SetConnMaxLifetime(opts.ConnLifetime)
+
+	if opts.Debug {
+		db = db.Debug()
+	}
+
 	return
 }

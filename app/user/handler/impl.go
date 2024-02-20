@@ -28,7 +28,28 @@ func (u *userHandler) RegisterRoute(e *echo.Echo) *echo.Echo {
 }
 
 func (u *userHandler) CreateUser(c echo.Context) (err error) {
-	return
+	response := model.GeneralResponse{
+		Code:   http.StatusBadRequest,
+		Status: "fail",
+	}
+
+	var user model.UserAccount
+	err = c.Bind(&user)
+	if err != nil {
+		response.Message = err.Error()
+		return c.JSON(response.Code, response)
+	}
+
+	err = u.userUsecase.CreateUserAccount(&entity.UserAccount{
+		Email:    user.Username,
+		Password: user.Password,
+	})
+
+	if err == nil {
+		response.Code = http.StatusOK
+		response.Status = "success"
+	}
+	return c.JSON(response.Code, response)
 }
 
 func (u *userHandler) GetUserDetails(c echo.Context) (err error) {
@@ -70,14 +91,11 @@ func (u *userHandler) UpdateProfile(c echo.Context) (err error) {
 		return c.JSON(response.Code, response)
 	}
 
-	err = u.userUsecase.UpdateUserAccount(userID, entity.UserAccount{
-		UserProfile: entity.UserProfile{
-			FirstName: userProfile.FirstName,
-			LastName:  userProfile.LastName,
-			Email:     userProfile.Email,
-			Phone:     userProfile.Phone,
-			Avatar:    userProfile.Avatar,
-		},
+	err = u.userUsecase.UpdateUserProfile(userID, entity.UserProfile{
+		FirstName: userProfile.FirstName,
+		LastName:  userProfile.LastName,
+		Phone:     userProfile.Phone,
+		Avatar:    userProfile.Avatar,
 	})
 
 	if err == nil {

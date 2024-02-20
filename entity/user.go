@@ -8,11 +8,11 @@ import (
 
 type UserAccount struct {
 	ID          string         `gorm:"size:26;primary_key"`
-	Username    string         `gorm:"size:50;uniqueIndex:udx_username"`
+	Email       string         `gorm:"size:50;uniqueIndex:udx_email"`
 	Password    string         `gorm:"size:100"`
 	CreatedAt   time.Time      `gorm:"autoCreateTime"`
 	UpdatedAt   time.Time      `gorm:"autoUpdateTime"`
-	DeletedAt   gorm.DeletedAt `gorm:"uniqueIndex:udx_username"`
+	DeletedAt   gorm.DeletedAt `gorm:"uniqueIndex:udx_email"`
 	UserProfile UserProfile    `gorm:"foreignKey:UserID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
 	UserAddress []UserAddress  `gorm:"foreignKey:UserID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
 }
@@ -26,7 +26,6 @@ type UserProfile struct {
 	UserID    string         `gorm:"size:26;index"`
 	FirstName string         `gorm:"size:100"`
 	LastName  string         `gorm:"size:100"`
-	Email     string         `gorm:"size:100;uniqueIndex:udx_email"`
 	Phone     string         `gorm:"size:20"`
 	Avatar    string         `gorm:"size:255"`
 	CreatedAt time.Time      `gorm:"autoCreateTime"`

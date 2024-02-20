@@ -1,9 +1,18 @@
 package usecase
 
-import "github.com/bouroo/go-clean-arch/entity"
+import (
+	"github.com/bouroo/go-clean-arch/entity"
+	"github.com/bouroo/go-clean-arch/helper"
+)
 
 func (u *userUsecase) CreateUserAccount(user *entity.UserAccount) (err error) {
 
+	_, err = u.userRepo.ReadUserAccount("", user.Email, "")
+
+	user.Password, err = helper.HashPassword(user.Password)
+	if err != nil {
+		return err
+	}
 	return u.userRepo.CreateUserAccount(user)
 }
 

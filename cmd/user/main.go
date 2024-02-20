@@ -31,13 +31,15 @@ var (
 func main() {
 	var err error
 
-	if RUN_ENV = os.Getenv("ENV"); len(RUN_ENV) == 0 {
+	if RUN_ENV = os.Getenv("RUN_ENV"); len(RUN_ENV) == 0 {
 		RUN_ENV = "local"
 	}
 
 	if CONFIG_PATH = os.Getenv("CONFIG_PATH"); len(CONFIG_PATH) == 0 {
 		CONFIG_PATH = "./configs"
 	}
+
+	slog.Info("starting", "RUN_ENV", RUN_ENV)
 
 	appConfig := config.NewAppConfig(CONFIG_PATH)
 	if err = appConfig.LoadConfig(RUN_ENV); err != nil {
@@ -69,7 +71,10 @@ func main() {
 	)
 	slog.SetDefault(logger)
 
-	dbConn, err := infrastructure.NewPostgresConn(infrastructure.PostgresOptions{})
+	dbConn, err := infrastructure.NewPostgresConn(infrastructure.PostgresOptions{
+		Host: appConfig.GetViper().GetString("db.postgres.host"),
+		Port: appConfig.GetViper().GetInt("db.postgres.port"),
+	})
 	if err != nil {
 		log.Panic(err)
 	}
@@ -101,6 +106,10 @@ func main() {
 	})
 
 	userRepository := repository.NewUserRepository(dbConn, logger)
+	err = userRepository.MigrateTable()
+	if err != nil {
+		log.Fatal(err)
+	}
 	userUsecase := usecase.NewUserUsecase(userRepository, logger)
 	userHandler := handler.NewUserHandler(userUsecase, logger)
 	userHandler.RegisterRoute(e)

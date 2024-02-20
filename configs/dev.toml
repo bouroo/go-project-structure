@@ -8,14 +8,14 @@ grpc = 8443
 
 [db]
 [db.postgres]
-host = "localhost"
+host = "postgres"
 port = 5432
 user = "postgres"
 password = "postgres"
 database = "postgres"
 
 [db.redis]
-host = "localhost"
+host = "redis"
 port = 6379
 password = ""
 database = 0
