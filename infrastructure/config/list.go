@@ -5,4 +5,5 @@ var KEYS_USED = map[string]bool{
 	"app.debug":     false,
 	"app.listen":    true,
 	"app.port.http": true,
+	"app.port.grpc": true,
 }

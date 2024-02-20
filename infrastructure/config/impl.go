@@ -23,9 +23,15 @@ func (v *viperConfig) GetViper() *viper.Viper {
 // It sets default values for the configuration and then loads the common and environment-specific
 // configuration files. It also overrides the config file with environment variables. Returns an error if
 // any operation fails.
-func (v *viperConfig) LoadConfig() (err error) {
+func (v *viperConfig) LoadConfig(configName string) (err error) {
 	if v.viper == nil {
 		v.viper = viper.New()
+	}
+
+	if len(configName) != 0 {
+		v.configName = configName
+	} else {
+		v.configName = "local"
 	}
 
 	// set default values
@@ -43,13 +49,10 @@ func (v *viperConfig) LoadConfig() (err error) {
 
 		// load common config
 		v.viper.SetConfigName("common")
+
 		// find and read common config file
 		v.viper.ReadInConfig()
 
-		// load environment config
-		if len(v.configName) == 0 {
-			v.configName = "dev"
-		}
 		// name of config file (without extension)
 		v.viper.SetConfigName(v.configName)
 
@@ -85,7 +88,7 @@ func (v *viperConfig) CheckConfigs(keysUsed map[string]bool) (err error) {
 	}
 
 	if len(missingKeys) > 0 {
-		err = errors.New("config not found: " + strings.Join(missingKeys, ", "))
+		err = errors.New("missing config keys: " + strings.Join(missingKeys, ", "))
 		return
 	}
 
@@ -102,7 +105,7 @@ func (v *viperConfig) WatchConfig() (err error) {
 		fmt.Println("Config file changed:", e.Name)
 		v.mutex.Lock()
 		defer v.mutex.Unlock()
-		err := v.LoadConfig()
+		err := v.LoadConfig(v.configName)
 		if err != nil {
 			return
 		}

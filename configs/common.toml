@@ -1,0 +1,5 @@
+[app]
+env = "local"
+[app.port]
+http = 8080
+grpc = 8443

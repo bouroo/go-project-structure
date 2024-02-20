@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
@@ -9,6 +10,7 @@ import (
 	"time"
 
 	"github.com/bouroo/go-clean-arch/helper"
+	"github.com/bouroo/go-clean-arch/infrastructure/config"
 	"github.com/bouroo/go-clean-arch/middleware"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
@@ -16,7 +18,30 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
+var (
+	RUN_ENV     string
+	CONFIG_PATH string
+)
+
 func main() {
+	var err error
+
+	if RUN_ENV = os.Getenv("ENV"); len(RUN_ENV) == 0 {
+		RUN_ENV = "local"
+	}
+	
+	if CONFIG_PATH = os.Getenv("CONFIG_PATH"); len(CONFIG_PATH) == 0 {
+		CONFIG_PATH = "./configs"
+	}
+
+	appConfig := config.NewAppConfig(CONFIG_PATH)
+	if err = appConfig.LoadConfig(RUN_ENV); err != nil {
+		log.Panic(err)
+	}
+	if err = appConfig.WatchConfig(); err != nil {
+		log.Panic(err)
+	}
+
 	// Setup
 	e := echo.New()
 	e.Logger.SetLevel(log.INFO)
@@ -43,8 +68,9 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	// Start server
+	listenFmt := `%s:%d`
 	go func() {
-		if err := e.Start(":8080"); err != nil && err != http.ErrServerClosed {
+		if err := e.Start(fmt.Sprintf(listenFmt, appConfig.GetViper().GetString("app.host"), appConfig.GetViper().GetInt("app.port"))); err != nil && err != http.ErrServerClosed {
 			e.Logger.Fatal("shutting down the server")
 		}
 	}()
