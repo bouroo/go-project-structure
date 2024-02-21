@@ -108,10 +108,14 @@ func main() {
 	e.Validator = &helper.CustomValidator{Validator: validator.New()}
 
 	userRepository := repository.NewUserRepository(appConfig.GetViper(), logger, dbConn)
-	err = userRepository.MigrateTable()
-	if err != nil {
-		log.Fatal(err)
+
+	if appConfig.GetViper().GetBool("app.automigrate") {
+		err = userRepository.MigrateTable()
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
+
 	userUsecase := usecase.NewUserUsecase(appConfig.GetViper(), logger, userRepository)
 	userHandler := handler.NewUserHandler(appConfig.GetViper(), logger, userUsecase)
 	userHandler.RegisterRoute(e)

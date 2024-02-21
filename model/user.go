@@ -1,11 +1,9 @@
 package model
 
 type UserAccount struct {
-	ID          string        `json:"id"`
-	Username    string        `json:"username"`
-	Password    string        `json:"password,omitempty"`
-	UserProfile UserProfile   `json:"userProfile"`
-	UserAddress []UserAddress `json:"userAddress"`
+	ID       string `json:"id"`
+	Username string `json:"username"`
+	Password string `json:"password,omitempty"`
 }
 
 type UserProfile struct {
@@ -23,4 +21,10 @@ type UserAddress struct {
 	Province string `json:"province"`
 	Country  string `json:"country"`
 	PostCode string `json:"postCode"`
+}
+
+type UserDetail struct {
+	UserAccount UserAccount   `json:"userAccount"`
+	UserProfile UserProfile   `json:"userProfile"`
+	UserAddress []UserAddress `json:"userAddress"`
 }

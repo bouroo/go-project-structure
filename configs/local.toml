@@ -2,6 +2,7 @@
 env = "local"
 debug = true
 listen = "localhost"
+automigrate = true
 [app.port]
 http = 8080
 grpc = 8443
