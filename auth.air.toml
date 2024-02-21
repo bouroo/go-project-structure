@@ -4,15 +4,15 @@ tmp_dir = "tmp"
 
 [build]
 args_bin = []
-bin = "./tmp/app.bin"
-cmd = "go build -installsuffix 'static' -o ./tmp/app.bin ./cmd/auth"
+bin = "./tmp/auth/app.bin"
+cmd = "go build -installsuffix 'static' -o ./tmp/auth/app.bin ./cmd/auth"
 delay = 800
 exclude_dir = ["assets", "tmp", "vendor", "testdata"]
 exclude_file = []
 exclude_regex = ["_test.go"]
 exclude_unchanged = false
 follow_symlink = false
-full_bin = "./tmp/app.bin"
+full_bin = "./tmp/auth/app.bin"
 include_dir = []
 include_ext = ["go", "tpl", "tmpl", "html", "toml"]
 include_file = []
