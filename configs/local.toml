@@ -6,6 +6,10 @@ listen = "localhost"
 http = 8080
 grpc = 8443
 
+[jwt]
+key = "your-secret-key"
+ttl = "8h"
+
 [db]
 [db.postgres]
 host = "localhost"

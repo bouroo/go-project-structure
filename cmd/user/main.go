@@ -107,13 +107,13 @@ func main() {
 	e.HTTPErrorHandler = helper.CustomHTTPErrorHandler
 	e.Validator = &helper.CustomValidator{Validator: validator.New()}
 
-	userRepository := repository.NewUserRepository(dbConn, logger)
+	userRepository := repository.NewUserRepository(appConfig.GetViper(), logger, dbConn)
 	err = userRepository.MigrateTable()
 	if err != nil {
 		log.Fatal(err)
 	}
-	userUsecase := usecase.NewUserUsecase(userRepository, logger)
-	userHandler := handler.NewUserHandler(userUsecase, logger)
+	userUsecase := usecase.NewUserUsecase(appConfig.GetViper(), logger, userRepository)
+	userHandler := handler.NewUserHandler(appConfig.GetViper(), logger, userUsecase)
 	userHandler.RegisterRoute(e)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)

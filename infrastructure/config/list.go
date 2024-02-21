@@ -6,6 +6,7 @@ var KEYS_USED = map[string]bool{
 	"app.listen":           true,
 	"app.port.http":        true,
 	"app.port.grpc":        true,
+	"jwt.key":              true,
 	"db.postgres.host":     true,
 	"db.postgres.port":     true,
 	"db.postgres.user":     true,

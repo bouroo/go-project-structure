@@ -4,16 +4,19 @@ import (
 	"log/slog"
 
 	"github.com/bouroo/go-clean-arch/domain"
+	"github.com/spf13/viper"
 )
 
 type userUsecase struct {
+	config   *viper.Viper
+	logger   *slog.Logger
 	userRepo domain.UserRepository
-	Logger   *slog.Logger
 }
 
-func NewUserUsecase(userRepo domain.UserRepository, logger *slog.Logger) domain.UserUsecase {
+func NewUserUsecase(config *viper.Viper, logger *slog.Logger, userRepo domain.UserRepository) domain.UserUsecase {
 	return &userUsecase{
+		config:   config,
+		logger:   logger,
 		userRepo: userRepo,
-		Logger:   logger,
 	}
 }

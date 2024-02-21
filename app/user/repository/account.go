@@ -7,12 +7,12 @@ import (
 
 func (r *userRepository) CreateUserAccount(user *entity.UserAccount) (err error) {
 
-	dbTx := r.DB.Begin()
+	dbTx := r.db.Begin()
 	defer dbTx.Rollback()
 
 	err = dbTx.Omit(clause.Associations).Create(user).Error
 	if err != nil {
-		r.Logger.Error("CreateUserAccount", "error", err)
+		r.logger.Error("CreateUserAccount", "error", err)
 		return err
 	}
 
@@ -26,7 +26,7 @@ func (r *userRepository) ReadUserAccount(userID, email string) (user entity.User
 		Password string
 	}{}
 
-	dbTx := r.DB.Model(&entity.UserAccount{})
+	dbTx := r.db.Model(&entity.UserAccount{})
 
 	dbTx.Select(&selected)
 
@@ -38,7 +38,7 @@ func (r *userRepository) ReadUserAccount(userID, email string) (user entity.User
 
 	err = dbTx.First(&user).Error
 	if err != nil {
-		r.Logger.Error("ReadUserAccount", "error", err)
+		r.logger.Error("ReadUserAccount", "error", err)
 		return user, err
 	}
 
@@ -47,12 +47,12 @@ func (r *userRepository) ReadUserAccount(userID, email string) (user entity.User
 
 func (r *userRepository) UpdateUserAccount(userID string, userAccount entity.UserAccount) (err error) {
 
-	dbTx := r.DB.Begin()
+	dbTx := r.db.Begin()
 	defer dbTx.Rollback()
 
 	err = dbTx.Model(&entity.UserAccount{ID: userID}).Omit(clause.Associations).Updates(userAccount).Error
 	if err != nil {
-		r.Logger.Error("UpdateUserAccount", "error", err)
+		r.logger.Error("UpdateUserAccount", "error", err)
 		return err
 	}
 
@@ -60,12 +60,12 @@ func (r *userRepository) UpdateUserAccount(userID string, userAccount entity.Use
 }
 
 func (r *userRepository) DeleteUserAccount(userID string) (err error) {
-	dbTx := r.DB.Begin()
+	dbTx := r.db.Begin()
 	defer dbTx.Rollback()
 
 	err = dbTx.Delete(&entity.UserAccount{ID: userID}).Error
 	if err != nil {
-		r.Logger.Error("DeleteUserAccount", "error", err)
+		r.logger.Error("DeleteUserAccount", "error", err)
 		return err
 	}
 

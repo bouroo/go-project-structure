@@ -7,17 +7,20 @@ import (
 	"github.com/bouroo/go-clean-arch/domain"
 	"github.com/bouroo/go-clean-arch/model"
 	"github.com/labstack/echo/v4"
+	"github.com/spf13/viper"
 )
 
 type authHandler struct {
+	config      *viper.Viper
+	logger      *slog.Logger
 	authUsecase domain.AuthUsecase
-	Logger      *slog.Logger
 }
 
-func NewAuthHandler(authUsecase domain.AuthUsecase, logger *slog.Logger) domain.AuthHandler {
+func NewAuthHandler(config *viper.Viper, logger *slog.Logger, authUsecase domain.AuthUsecase) domain.AuthHandler {
 	return &authHandler{
 		authUsecase: authUsecase,
-		Logger:      logger,
+		config:      config,
+		logger:      logger,
 	}
 }
 

@@ -6,19 +6,23 @@ import (
 
 	"github.com/bouroo/go-clean-arch/domain"
 	"github.com/bouroo/go-clean-arch/entity"
+	"github.com/bouroo/go-clean-arch/middleware"
 	"github.com/bouroo/go-clean-arch/model"
 	"github.com/labstack/echo/v4"
+	"github.com/spf13/viper"
 )
 
 type userHandler struct {
+	config      *viper.Viper
+	logger      *slog.Logger
 	userUsecase domain.UserUsecase
-	Logger      *slog.Logger
 }
 
-func NewUserHandler(userUsecase domain.UserUsecase, logger *slog.Logger) domain.UserHandler {
+func NewUserHandler(config *viper.Viper, logger *slog.Logger, userUsecase domain.UserUsecase) domain.UserHandler {
 	return &userHandler{
+		config:      config,
+		logger:      logger,
 		userUsecase: userUsecase,
-		Logger:      logger,
 	}
 }
 
@@ -32,7 +36,9 @@ func (h *userHandler) RegisterRoute(e *echo.Echo) *echo.Echo {
 		})
 	})
 
-	router.GET("/me", h.GetUserDetails)
+	router.GET("/me", h.GetUserDetails, middleware.CustomJWTMiddleware(h.config.GetString("jwt.key")))
+
+	router.POST("/register", h.CreateUser)
 
 	return e
 }

@@ -4,7 +4,7 @@ import "github.com/bouroo/go-clean-arch/entity"
 
 func (r *userRepository) ReadUserDetails(userID, email string) (user entity.UserAccount, err error) {
 
-	dbTx := r.DB.Model(&entity.UserAccount{})
+	dbTx := r.db.Model(&entity.UserAccount{})
 
 	dbTx.Joins("UserProfile")
 
@@ -18,7 +18,7 @@ func (r *userRepository) ReadUserDetails(userID, email string) (user entity.User
 
 	err = dbTx.First(&user).Error
 	if err != nil {
-		r.Logger.Error("ReadUserDetails", "error", err)
+		r.logger.Error("ReadUserDetails", "error", err)
 		return user, err
 	}
 

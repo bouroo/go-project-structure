@@ -104,11 +104,11 @@ func main() {
 	e.HTTPErrorHandler = helper.CustomHTTPErrorHandler
 	e.Validator = &helper.CustomValidator{Validator: validator.New()}
 
-	userRepository := userRepository.NewUserRepository(dbConn, logger)
+	userRepository := userRepository.NewUserRepository(appConfig.GetViper(), logger, dbConn)
 
-	authRepository := authRepository.NewAuthRepository(dbConn, logger)
-	authUsecase := authUsecase.NewAuthUsecase(authRepository, userRepository, logger)
-	authHandler := authHandler.NewAuthHandler(authUsecase, logger)
+	authRepository := authRepository.NewAuthRepository(appConfig.GetViper(), logger, dbConn)
+	authUsecase := authUsecase.NewAuthUsecase(appConfig.GetViper(), logger, authRepository, userRepository)
+	authHandler := authHandler.NewAuthHandler(appConfig.GetViper(), logger, authUsecase)
 	authHandler.RegisterRoute(e)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)

@@ -4,17 +4,20 @@ import (
 	"log/slog"
 
 	"github.com/bouroo/go-clean-arch/domain"
+	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )
 
 type userRepository struct {
-	DB     *gorm.DB
-	Logger *slog.Logger
+	config *viper.Viper
+	logger *slog.Logger
+	db     *gorm.DB
 }
 
-func NewUserRepository(db *gorm.DB, logger *slog.Logger) domain.UserRepository {
+func NewUserRepository(config *viper.Viper, logger *slog.Logger, db *gorm.DB) domain.UserRepository {
 	return &userRepository{
-		DB:     db,
-		Logger: logger,
+		config: config,
+		logger: logger,
+		db:     db,
 	}
 }

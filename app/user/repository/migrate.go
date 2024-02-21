@@ -5,7 +5,7 @@ import (
 )
 
 func (r *userRepository) MigrateTable() (err error) {
-	return r.DB.AutoMigrate(
+	return r.db.AutoMigrate(
 		&entity.UserAccount{},
 		&entity.UserProfile{},
 		&entity.UserAddress{},
