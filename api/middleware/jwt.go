@@ -29,7 +29,8 @@ func CustomJWTMiddleware(jwtKey string) echo.MiddlewareFunc {
 					Message: err.Error(),
 				})
 			}
-			c.Set("user_id", claims.Subject)
+			c.Set("email", claims.Audience)
+			c.Set("userID", claims.Subject)
 			return next(c)
 		}
 	}

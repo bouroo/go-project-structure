@@ -14,7 +14,6 @@ require (
 	github.com/nats-io/nats.go v1.33.1
 	github.com/redis/go-redis/v9 v9.4.0
 	github.com/spf13/viper v1.18.2
-	github.com/wrfly/grpc-echo v0.0.0-20190316072428-cc57fce2b0cf
 	golang.org/x/crypto v0.19.0
 	google.golang.org/grpc v1.59.0
 	google.golang.org/protobuf v1.31.0

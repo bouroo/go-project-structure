@@ -10,10 +10,8 @@ import (
 )
 
 func Signin(email string, password string) (token string, err error) {
-	grpcClient, err := repository.NewUserAccountServiceClient()
-	if err != nil {
-		return
-	}
+	grpcClient := repository.UserAccountServiceConn.Get().(pb.UserAccountServiceClient)
+	defer repository.UserAccountServiceConn.Put(grpcClient)
 
 	resp, err := grpcClient.ReadUserAccount(context.Background(), &pb.UserAccount{Email: email, Password: password})
 	if err != nil {
@@ -26,10 +24,9 @@ func Signin(email string, password string) (token string, err error) {
 }
 
 func Singup(email string, password string) (userAccount model.UserAccount, err error) {
-	grpcClient, err := repository.NewUserAccountServiceClient()
-	if err != nil {
-		return
-	}
+	grpcClient := repository.UserAccountServiceConn.Get().(pb.UserAccountServiceClient)
+	defer repository.UserAccountServiceConn.Put(grpcClient)
+
 	resp, err := grpcClient.CreateUserAccount(context.Background(), &pb.UserAccount{Email: email, Password: password})
 	if err != nil {
 		return
@@ -43,10 +40,8 @@ func Singup(email string, password string) (userAccount model.UserAccount, err e
 }
 
 func ChangePassword(userID string, password string) (err error) {
-	grpcClient, err := repository.NewUserAccountServiceClient()
-	if err != nil {
-		return
-	}
+	grpcClient := repository.UserAccountServiceConn.Get().(pb.UserAccountServiceClient)
+	defer repository.UserAccountServiceConn.Put(grpcClient)
 
 	passwordBytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
