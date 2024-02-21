@@ -7,24 +7,15 @@ import (
 )
 
 type RedisConn struct {
-	ctx    context.Context
-	Client *redis.Client
+	Context context.Context
+	Client  *redis.Client
 }
 
-type RedisOptions struct {
-	redis.Options
-}
-
-func (config *RedisOptions) ApplyDefault() *RedisOptions {
-	if len(config.Addr) == 0 {
-		config.Addr = "localhost:6379"
+func NewRedisConn(opts redis.Options) *RedisConn {
+	if len(opts.Addr) == 0 {
+		opts.Addr = "localhost:6379"
 	}
-	return config
-}
 
-func NewRedisConn(opts RedisOptions) *RedisConn {
-	opts.ApplyDefault()
-
-	rdb := redis.NewClient(&opts.Options)
-	return &RedisConn{ctx: context.Background(), Client: rdb}
+	rdb := redis.NewClient(&opts)
+	return &RedisConn{Context: context.Background(), Client: rdb}
 }

@@ -10,17 +10,18 @@ import (
 	"syscall"
 	"time"
 
-	authHandler "github.com/bouroo/go-clean-arch/app/auth/handler"
-	authRepository "github.com/bouroo/go-clean-arch/app/auth/repository"
-	authUsecase "github.com/bouroo/go-clean-arch/app/auth/usecase"
-	userRepository "github.com/bouroo/go-clean-arch/app/user/repository"
-	"github.com/bouroo/go-clean-arch/helper"
+	authHandler "github.com/bouroo/go-clean-arch/api/auth/handler"
+	authRepository "github.com/bouroo/go-clean-arch/api/auth/repository"
+	authUsecase "github.com/bouroo/go-clean-arch/api/auth/usecase"
+	userRepository "github.com/bouroo/go-clean-arch/api/user/repository"
 	"github.com/bouroo/go-clean-arch/infrastructure"
 	"github.com/bouroo/go-clean-arch/infrastructure/config"
+	"github.com/bouroo/go-clean-arch/pkg/helper"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
+	"github.com/redis/go-redis/v9"
 )
 
 var (
@@ -83,6 +84,11 @@ func main() {
 		log.Panic(err)
 	}
 
+	redisConn := infrastructure.NewRedisConn(redis.Options{
+		Addr: fmt.Sprintf("%s:%d", appConfig.GetViper().GetString("db.redis.host"), appConfig.GetViper().GetInt("db.redis.port")),
+		DB:   appConfig.GetViper().GetInt("db.redis.database"),
+	})
+
 	// Setup
 	e := echo.New()
 	e.Logger.SetLevel(log.INFO)
@@ -106,7 +112,7 @@ func main() {
 
 	userRepository := userRepository.NewUserRepository(appConfig.GetViper(), logger, dbConn)
 
-	authRepository := authRepository.NewAuthRepository(appConfig.GetViper(), logger, dbConn)
+	authRepository := authRepository.NewAuthRepository(appConfig.GetViper(), logger, dbConn, redisConn)
 	authUsecase := authUsecase.NewAuthUsecase(appConfig.GetViper(), logger, authRepository, userRepository)
 	authHandler := authHandler.NewAuthHandler(appConfig.GetViper(), logger, authUsecase)
 	authHandler.RegisterRoute(e)
