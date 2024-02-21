@@ -1,23 +1,18 @@
 package usecase
 
-import "github.com/bouroo/go-clean-arch/internal/entity"
+import (
+	"github.com/bouroo/go-project-structure/api/user/repository"
+	"github.com/bouroo/go-project-structure/pkg/entity"
+	"github.com/bouroo/go-project-structure/pkg/model"
+)
 
-func (u *userUsecase) CreateUserProfile(user *entity.UserProfile) (err error) {
-
-	return u.userRepo.CreateUserProfile(user)
-}
-
-func (u *userUsecase) ReadUserProfile(userID string) (user entity.UserProfile, err error) {
-
-	return u.userRepo.ReadUserProfile(userID)
-}
-
-func (u *userUsecase) UpdateUserProfile(userID string, user entity.UserProfile) (err error) {
-
-	return u.userRepo.UpdateUserProfile(userID, user)
-}
-
-func (u *userUsecase) DeleteUserProfile(userID string) (err error) {
-
-	return u.userRepo.DeleteUserProfile(userID)
+func UpdateUserProfile(profileID, userID string, profile model.UserProfile) (err error) {
+	profileEntity := entity.UserProfile{
+		FirstName: profile.FirstName,
+		LastName:  profile.LastName,
+		Phone:     profile.Phone,
+		Avatar:    profile.Avatar,
+	}
+	err = repository.UpdateUserProfile(profileID, userID, profileEntity)
+	return
 }

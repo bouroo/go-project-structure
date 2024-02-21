@@ -10,18 +10,16 @@ import (
 	"syscall"
 	"time"
 
-	authHandler "github.com/bouroo/go-clean-arch/api/auth/handler"
-	authRepository "github.com/bouroo/go-clean-arch/api/auth/repository"
-	authUsecase "github.com/bouroo/go-clean-arch/api/auth/usecase"
-	userRepository "github.com/bouroo/go-clean-arch/api/user/repository"
-	"github.com/bouroo/go-clean-arch/infrastructure"
-	"github.com/bouroo/go-clean-arch/infrastructure/config"
-	"github.com/bouroo/go-clean-arch/pkg/helper"
+	"github.com/bouroo/go-project-structure/api/auth"
+	userRepository "github.com/bouroo/go-project-structure/api/user/repository"
+	"github.com/bouroo/go-project-structure/datasources"
+	"github.com/bouroo/go-project-structure/infrastructure"
+	"github.com/bouroo/go-project-structure/infrastructure/config"
+	"github.com/bouroo/go-project-structure/pkg/helper"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
-	"github.com/redis/go-redis/v9"
 )
 
 var (
@@ -51,6 +49,11 @@ func main() {
 		}
 	}
 
+	if err = appConfig.CheckConfigs(config.KEYS_USED); err != nil {
+		log.Panic(err)
+	}
+	datasources.AppConfig = appConfig.GetViper()
+
 	// is debug mode with APP_DEBUG = true
 	var handlerOptions slog.HandlerOptions
 	logWriter := helper.LogWriter{
@@ -63,10 +66,6 @@ func main() {
 		}
 	}
 
-	if err = appConfig.CheckConfigs(config.KEYS_USED); err != nil {
-		log.Panic(err)
-	}
-
 	// set logger target
 	logger := slog.New(
 		slog.NewTextHandler(
@@ -76,18 +75,17 @@ func main() {
 	)
 	slog.SetDefault(logger)
 
-	dbConn, err := infrastructure.NewPostgresConn(infrastructure.PostgresOptions{
-		Host: appConfig.GetViper().GetString("db.postgres.host"),
-		Port: appConfig.GetViper().GetInt("db.postgres.port"),
+	datasources.DBConn, err = infrastructure.NewPostgresConn(infrastructure.PostgresOptions{
+		Host:     appConfig.GetViper().GetString("db.postgres.host"),
+		Port:     appConfig.GetViper().GetInt("db.postgres.port"),
+		User:     appConfig.GetViper().GetString("db.postgres.user"),
+		Password: appConfig.GetViper().GetString("db.postgres.password"),
+		DBname:   appConfig.GetViper().GetString("db.postgres.database"),
+		Debug:    appConfig.GetViper().GetBool("app.debug"),
 	})
 	if err != nil {
 		log.Panic(err)
 	}
-
-	redisConn := infrastructure.NewRedisConn(redis.Options{
-		Addr: fmt.Sprintf("%s:%d", appConfig.GetViper().GetString("db.redis.host"), appConfig.GetViper().GetInt("db.redis.port")),
-		DB:   appConfig.GetViper().GetInt("db.redis.database"),
-	})
 
 	// Setup
 	e := echo.New()
@@ -110,12 +108,14 @@ func main() {
 	e.HTTPErrorHandler = helper.CustomHTTPErrorHandler
 	e.Validator = &helper.CustomValidator{Validator: validator.New()}
 
-	userRepository := userRepository.NewUserRepository(appConfig.GetViper(), logger, dbConn)
+	if appConfig.GetViper().GetBool("app.automigrate") {
+		err = userRepository.MigrateTable()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 
-	authRepository := authRepository.NewAuthRepository(appConfig.GetViper(), logger, dbConn, redisConn)
-	authUsecase := authUsecase.NewAuthUsecase(appConfig.GetViper(), logger, authRepository, userRepository)
-	authHandler := authHandler.NewAuthHandler(appConfig.GetViper(), logger, authUsecase)
-	authHandler.RegisterRoute(e)
+	auth.RegisterRoute(e)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
@@ -133,5 +133,13 @@ func main() {
 	defer cancel()
 	if err := e.Shutdown(ctx); err != nil {
 		e.Logger.Fatal(err)
+	}
+	if datasources.DBConn != nil {
+		if db, err := datasources.DBConn.DB(); err == nil {
+			db.Close()
+		}
+	}
+	if datasources.RedisConn != nil && datasources.RedisConn.Client != nil {
+		datasources.RedisConn.Client.Close()
 	}
 }

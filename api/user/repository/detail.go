@@ -1,26 +1,22 @@
 package repository
 
-import "github.com/bouroo/go-clean-arch/internal/entity"
+import (
+	"github.com/bouroo/go-project-structure/datasources"
+	"github.com/bouroo/go-project-structure/pkg/entity"
+)
 
-func (r *userRepository) ReadUserDetails(userID, email string) (user entity.UserAccount, err error) {
-
-	dbTx := r.db.Model(&entity.UserAccount{})
-
+func ReadUserDetails(userID, Email string) (user entity.UserAccount, err error) {
+	dbTx := datasources.DBConn.Model(&entity.UserAccount{})
 	dbTx.Joins("UserProfile")
-
 	dbTx.Joins("UserAddress")
 
 	if len(userID) != 0 {
 		dbTx.Where(entity.UserAccount{ID: userID})
-	} else if len(email) != 0 {
-		dbTx.Where(entity.UserAccount{Email: email})
+	} else if len(Email) != 0 {
+		dbTx.Where(entity.UserAccount{Email: Email})
 	}
 
 	err = dbTx.First(&user).Error
-	if err != nil {
-		r.logger.Error("ReadUserDetails", "error", err)
-		return user, err
-	}
 
-	return user, err
+	return
 }

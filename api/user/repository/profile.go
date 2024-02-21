@@ -1,52 +1,59 @@
 package repository
 
 import (
-	"github.com/bouroo/go-clean-arch/internal/entity"
+	"github.com/bouroo/go-project-structure/datasources"
+	"github.com/bouroo/go-project-structure/pkg/entity"
+	"gorm.io/gorm/clause"
 )
 
-func (r *userRepository) CreateUserProfile(userProfile *entity.UserProfile) (err error) {
-	dbTx := r.db.Begin()
-	defer dbTx.Rollback()
+func CreateUserProfile(profile *entity.UserProfile) (err error) {
+	dbTx := datasources.DBConn.Begin()
+	defer dbTx.Commit()
 
-	err = dbTx.Create(userProfile).Error
-	if err != nil {
-		r.logger.Error("CreateUserProfile", "error", err)
-		return err
+	if err = dbTx.Omit(clause.Associations).Create(profile).Error; err != nil {
+		return
 	}
 
 	return dbTx.Commit().Error
 }
 
-func (r *userRepository) ReadUserProfile(userID string) (userProfile entity.UserProfile, err error) {
-	err = r.db.First(&userProfile, userID).Error
-	if err != nil {
-		r.logger.Error("ReadUserProfile", "error", err)
-		return userProfile, err
+func ReadUserProfile(profileID, userID string) (profile entity.UserProfile, err error) {
+	dbTx := datasources.DBConn.Model(&entity.UserProfile{})
+	if len(profileID) != 0 {
+		dbTx.Where(entity.UserProfile{ID: profileID})
+	} else if len(userID) != 0 {
+		dbTx.Where(entity.UserProfile{UserID: userID})
 	}
+	err = dbTx.First(&profile).Error
 	return
 }
 
-func (r *userRepository) UpdateUserProfile(userID string, userProfile entity.UserProfile) (err error) {
-	dbTx := r.db.Begin()
-	defer dbTx.Rollback()
+func UpdateUserProfile(profileID string, userID string, profile entity.UserProfile) (err error) {
+	dbTx := datasources.DBConn.Begin()
+	defer dbTx.Commit()
 
-	err = dbTx.Model(&entity.UserProfile{ID: userID}).Updates(userProfile).Error
-	if err != nil {
-		r.logger.Error("UpdateUserProfile", "error", err)
-		return err
+	dbTx.Model(&entity.UserProfile{})
+
+	if len(profileID) != 0 {
+		dbTx.Where(entity.UserProfile{ID: profileID})
+	} else if len(userID) != 0 {
+		dbTx.Where(entity.UserProfile{UserID: userID})
+	}
+
+	if err = dbTx.FirstOrCreate(&profile).Error; err != nil {
+		return
 	}
 
 	return dbTx.Commit().Error
 }
 
-func (r *userRepository) DeleteUserProfile(userID string) (err error) {
-	dbTx := r.db.Begin()
-	defer dbTx.Rollback()
+func DeleteUserProfile(profileID string) (err error) {
+	dbTx := datasources.DBConn.Begin()
+	defer dbTx.Commit()
 
-	err = dbTx.Delete(&entity.UserProfile{}, userID).Error
-	if err != nil {
-		r.logger.Error("DeleteUserProfile", "error", err)
-		return err
+	dbTx.Where(entity.UserProfile{ID: profileID})
+	if err = dbTx.Delete(&entity.UserProfile{}).Error; err != nil {
+		return
 	}
 
 	return dbTx.Commit().Error

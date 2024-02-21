@@ -7,8 +7,10 @@ services:
   traefik:
     image: traefik
     command:
+      - "--log.level=DEBUG"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.defaultRule=Host(`{{ trimPrefix `/` .Name }}.docker.localhost`)"
       - "--entrypoints.web_8080.address=:8080"
       - "--entrypoints.web_8443.address=:8443"
     ports:
@@ -34,9 +36,9 @@ services:
     command: ["air", "-c", "user.air.toml"]
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.user.rule=PathPrefix(`/api/v1/users`)"
+      - "traefik.http.routers.user.rule=PathPrefix(`/api/v1/users/`)"
       - "traefik.http.routers.user.entrypoints=web_8080"
-      - "traefik.http.routers.user.service=user"
+      - "traefik.http.routers.user.app.service=user"
       - "traefik.http.services.user.loadbalancer.server.port=8080"
     volumes:
       - .:/app
@@ -60,9 +62,9 @@ services:
     command: ["air", "-c", "auth.air.toml"]
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.auth.rule=PathPrefix(`/api/v1/auth`)"
+      - "traefik.http.routers.auth.rule=PathPrefix(`/api/v1/auth/`)"
       - "traefik.http.routers.auth.entrypoints=web_8080"
-      - "traefik.http.routers.auth.service=auth"
+      - "traefik.http.routers.auth.app.service=auth"
       - "traefik.http.services.auth.loadbalancer.server.port=8080"
     volumes:
       - .:/app

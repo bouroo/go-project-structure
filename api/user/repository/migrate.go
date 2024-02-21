@@ -1,11 +1,12 @@
 package repository
 
 import (
-	"github.com/bouroo/go-clean-arch/internal/entity"
+	"github.com/bouroo/go-project-structure/datasources"
+	"github.com/bouroo/go-project-structure/pkg/entity"
 )
 
-func (r *userRepository) MigrateTable() (err error) {
-	return r.db.AutoMigrate(
+func MigrateTable() (err error) {
+	return datasources.DBConn.AutoMigrate(
 		&entity.UserAccount{},
 		&entity.UserProfile{},
 		&entity.UserAddress{},

@@ -7,8 +7,8 @@ type UserAccount struct {
 }
 
 type UserProfile struct {
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
 	Phone     string `json:"phone"`
 	Avatar    string `json:"avatar"`
 }
@@ -19,11 +19,11 @@ type UserAddress struct {
 	City     string `json:"city"`
 	Province string `json:"province"`
 	Country  string `json:"country"`
-	PostCode string `json:"postCode"`
+	PostCode string `json:"postal_code"`
 }
 
 type UserDetail struct {
-	UserAccount UserAccount   `json:"userAccount"`
-	UserProfile UserProfile   `json:"userProfile"`
-	UserAddress []UserAddress `json:"userAddress"`
+	UserAccount UserAccount   `json:"user_account"`
+	UserProfile UserProfile   `json:"user_profile"`
+	UserAddress []UserAddress `json:"user_addresses"`
 }

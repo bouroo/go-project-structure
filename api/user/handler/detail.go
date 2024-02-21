@@ -8,30 +8,23 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func CreateUserProfile(c echo.Context) (err error) {
+func ReadUserDetails(c echo.Context) (err error) {
 	reqpPayload := model.GeneralResponse{
 		Code:   http.StatusInternalServerError,
 		Status: "error",
 	}
 
-	var userProfile model.UserProfile
-	err = c.Bind(&userProfile)
-	if err != nil {
-		reqpPayload.Code = http.StatusBadRequest
-		reqpPayload.Status = "fail"
-		reqpPayload.Message = err.Error()
-		return c.JSON(reqpPayload.Code, reqpPayload)
-	}
-
 	userID := c.Get("userID").(string)
 
-	err = usecase.UpdateUserProfile("", userID, userProfile)
+	resp, err := usecase.ReadUserDetails(model.UserAccount{ID: userID})
 	if err != nil {
 		reqpPayload.Code = http.StatusInternalServerError
 		reqpPayload.Status = "error"
 		reqpPayload.Message = err.Error()
 		return c.JSON(reqpPayload.Code, reqpPayload)
 	}
+
+	reqpPayload.Data = resp
 
 	if err == nil {
 		reqpPayload.Code = http.StatusOK

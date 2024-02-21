@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/bouroo/go-clean-arch/internal/model"
+	"github.com/bouroo/go-project-structure/pkg/model"
 	"github.com/labstack/echo/v4"
 )
 

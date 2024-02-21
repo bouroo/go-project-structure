@@ -10,12 +10,13 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/bouroo/go-clean-arch/api/user/handler"
-	"github.com/bouroo/go-clean-arch/api/user/repository"
-	"github.com/bouroo/go-clean-arch/api/user/usecase"
-	"github.com/bouroo/go-clean-arch/infrastructure"
-	"github.com/bouroo/go-clean-arch/infrastructure/config"
-	"github.com/bouroo/go-clean-arch/pkg/helper"
+	"github.com/bouroo/go-project-structure/api/user"
+	"github.com/bouroo/go-project-structure/api/user/handler"
+	userRepository "github.com/bouroo/go-project-structure/api/user/repository"
+	"github.com/bouroo/go-project-structure/datasources"
+	"github.com/bouroo/go-project-structure/infrastructure"
+	"github.com/bouroo/go-project-structure/infrastructure/config"
+	"github.com/bouroo/go-project-structure/pkg/helper"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
@@ -52,6 +53,7 @@ func main() {
 	if err = appConfig.CheckConfigs(config.KEYS_USED); err != nil {
 		log.Panic(err)
 	}
+	datasources.AppConfig = appConfig.GetViper()
 
 	// is debug mode with APP_DEBUG = true
 	var handlerOptions slog.HandlerOptions
@@ -74,7 +76,7 @@ func main() {
 	)
 	slog.SetDefault(logger)
 
-	dbConn, err := infrastructure.NewPostgresConn(infrastructure.PostgresOptions{
+	datasources.DBConn, err = infrastructure.NewPostgresConn(infrastructure.PostgresOptions{
 		Host:     appConfig.GetViper().GetString("db.postgres.host"),
 		Port:     appConfig.GetViper().GetInt("db.postgres.port"),
 		User:     appConfig.GetViper().GetString("db.postgres.user"),
@@ -85,6 +87,8 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
+
+	go handler.RunGRPCServer()
 
 	// Setup
 	e := echo.New()
@@ -107,8 +111,6 @@ func main() {
 	e.HTTPErrorHandler = helper.CustomHTTPErrorHandler
 	e.Validator = &helper.CustomValidator{Validator: validator.New()}
 
-	userRepository := repository.NewUserRepository(appConfig.GetViper(), logger, dbConn)
-
 	if appConfig.GetViper().GetBool("app.automigrate") {
 		err = userRepository.MigrateTable()
 		if err != nil {
@@ -116,9 +118,7 @@ func main() {
 		}
 	}
 
-	userUsecase := usecase.NewUserUsecase(appConfig.GetViper(), logger, userRepository)
-	userHandler := handler.NewUserHandler(appConfig.GetViper(), logger, userUsecase)
-	userHandler.RegisterRoute(e)
+	user.RegisterRoute(e)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
@@ -136,5 +136,13 @@ func main() {
 	defer cancel()
 	if err := e.Shutdown(ctx); err != nil {
 		e.Logger.Fatal(err)
+	}
+	if datasources.DBConn != nil {
+		if db, err := datasources.DBConn.DB(); err == nil {
+			db.Close()
+		}
+	}
+	if datasources.RedisConn != nil && datasources.RedisConn.Client != nil {
+		datasources.RedisConn.Client.Close()
 	}
 }

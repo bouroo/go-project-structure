@@ -1,32 +1,34 @@
 package usecase
 
 import (
-	"github.com/bouroo/go-clean-arch/internal/entity"
-	"github.com/bouroo/go-clean-arch/pkg/helper"
+	"github.com/bouroo/go-project-structure/api/user/repository"
+	"github.com/bouroo/go-project-structure/pkg/entity"
+	"golang.org/x/crypto/bcrypt"
 )
 
-func (u *userUsecase) CreateUserAccount(user *entity.UserAccount) (err error) {
+func CreateUserAccount(user *entity.UserAccount) (err error) {
+	return repository.CreateUserAccount(user)
+}
 
-	_, err = u.userRepo.ReadUserAccount("", user.Email)
+func ReadUserAccount(userID string) (user entity.UserAccount, err error) {
+	return repository.ReadUserAccount(userID)
+}
 
-	user.Password, err = helper.HashPassword(user.Password)
+func UpdateUserAccount(userID string, user entity.UserAccount) (err error) {
+	return repository.UpdateUserAccount(userID, user)
+}
+
+func DeleteUserAccount(userID string) (err error) {
+	return repository.DeleteUserAccount(userID)
+}
+
+func ChangePassword(userID string, password string) (err error) {
+
+	passwordByte, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		return err
+		return
 	}
-	return u.userRepo.CreateUserAccount(user)
-}
 
-func (u *userUsecase) ReadUserAccount(userID, email string) (user entity.UserAccount, err error) {
-
-	return u.userRepo.ReadUserAccount(userID, email)
-}
-
-func (u *userUsecase) UpdateUserAccount(userID string, user entity.UserAccount) (err error) {
-
-	return u.userRepo.UpdateUserAccount(userID, user)
-}
-
-func (u *userUsecase) DeleteUserAccount(userID string) (err error) {
-
-	return u.userRepo.DeleteUserAccount(userID)
+	err = repository.UpdateUserAccount(userID, entity.UserAccount{Password: string(passwordByte)})
+	return
 }

@@ -53,4 +53,3 @@ EXPOSE 8080 8443
 
 # default run entrypoint
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "/opt/${SERVICE_NAME}/app.bin"]
-CMD ["--env=dev"]
