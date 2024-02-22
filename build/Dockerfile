@@ -33,7 +33,7 @@ RUN go test -v ./... && \
     ./cmd/${SERVICE_NAME}
 
 # Step 4: Pack container image
-FROM debian:bookworm-slim
+FROM gcr.io/distroless/base-debian12:nonroot
 
 ARG SERVICE_NAME
 ARG TIME_ZONE

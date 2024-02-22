@@ -75,6 +75,16 @@ func main() {
 	)
 	slog.SetDefault(logger)
 
+	datasources.UserGRPCConn, err = infrastructure.NewGRPCConnectionPool(&infrastructure.GPRCClientConnConfig{
+		TargetAddr:   fmt.Sprintf("%s:%d", datasources.AppConfig.GetString("service.user.grpc.host"), datasources.AppConfig.GetInt("service.user.grpc.port")),
+		TLSConfig:    nil,
+		MaxIdleConns: 100,
+		DialTimeout:  10 * time.Second,
+	})
+	if err != nil {
+		log.Panic(err)
+	}
+
 	datasources.DBConn, err = infrastructure.NewPostgresConn(infrastructure.PostgresOptions{
 		Host:     appConfig.GetViper().GetString("db.postgres.host"),
 		Port:     appConfig.GetViper().GetInt("db.postgres.port"),

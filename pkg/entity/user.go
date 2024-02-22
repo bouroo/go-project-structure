@@ -3,6 +3,7 @@ package entity
 import (
 	"time"
 
+	"github.com/oklog/ulid/v2"
 	"gorm.io/gorm"
 )
 
@@ -22,6 +23,11 @@ func (UserAccount) TableName() string {
 	return "tb_user_account"
 }
 
+func (u *UserAccount) BeforeCreate(tx *gorm.DB) (err error) {
+	u.ID = ulid.Make().String()
+	return
+}
+
 type UserProfile struct {
 	ID        string         `gorm:"size:26;primary_key"`
 	UserID    string         `gorm:"size:26;index"`
@@ -36,6 +42,11 @@ type UserProfile struct {
 
 func (UserProfile) TableName() string {
 	return "tb_user_profile"
+}
+
+func (u *UserProfile) BeforeCreate(tx *gorm.DB) (err error) {
+	u.ID = ulid.Make().String()
+	return
 }
 
 type UserAddress struct {
@@ -54,4 +65,9 @@ type UserAddress struct {
 
 func (UserAddress) TableName() string {
 	return "tb_user_address"
+}
+
+func (u *UserAddress) BeforeCreate(tx *gorm.DB) (err error) {
+	u.ID = ulid.Make().String()
+	return
 }

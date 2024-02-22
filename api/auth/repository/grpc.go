@@ -1,14 +1,11 @@
 package repository
 
 import (
-	"fmt"
-	"log"
+	"context"
 	"sync"
 
 	"github.com/bouroo/go-project-structure/datasources"
 	pb "github.com/bouroo/go-project-structure/pkg/proto/user"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 var UserAccountServiceConn = sync.Pool{
@@ -19,17 +16,12 @@ var UserAccountServiceConn = sync.Pool{
 }
 
 func newUserAccountServiceClient() (client pb.UserAccountServiceClient, err error) {
-	// if UserAccountServiceClient != nil {
-	// 	return UserAccountServiceClient, nil
-	// }
-	var opts []grpc.DialOption
-	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	usergRPCAddr := fmt.Sprintf("%s:%d", datasources.AppConfig.GetString("service.user.grpc.host"), datasources.AppConfig.GetInt("service.user.grpc.port"))
-	conn, err := grpc.Dial(usergRPCAddr, opts...)
+	grpcConn, err := datasources.UserGRPCConn.Get(context.Background())
 	if err != nil {
-		log.Fatalf("fail to dial: %v", err)
+		return
 	}
-	// defer conn.Close()
-	client = pb.NewUserAccountServiceClient(conn)
+	defer datasources.UserGRPCConn.Put(grpcConn)
+
+	client = pb.NewUserAccountServiceClient(grpcConn)
 	return
 }

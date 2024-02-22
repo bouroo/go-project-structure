@@ -7,7 +7,8 @@ import (
 )
 
 var (
-	AppConfig *viper.Viper
-	DBConn    *gorm.DB
-	RedisConn *infrastructure.RedisConn
+	AppConfig    *viper.Viper
+	DBConn       *gorm.DB
+	RedisConn    *infrastructure.RedisConn
+	UserGRPCConn *infrastructure.GRPCConnPool
 )

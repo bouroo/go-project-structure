@@ -6,6 +6,7 @@ import (
 	"github.com/bouroo/go-project-structure/api/user/repository"
 	"github.com/bouroo/go-project-structure/pkg/entity"
 	pb "github.com/bouroo/go-project-structure/pkg/proto/user"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserAccountServiceServer struct {
@@ -13,9 +14,13 @@ type UserAccountServiceServer struct {
 }
 
 func (s *UserAccountServiceServer) CreateUserAccount(ctx context.Context, request *pb.UserAccount) (response *pb.UserAccount, err error) {
+	passwordHashed, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return
+	}
 	user := &entity.UserAccount{
 		Email:    request.Email,
-		Password: request.Password,
+		Password: string(passwordHashed),
 	}
 	err = repository.CreateUserAccount(user)
 	response = &pb.UserAccount{
