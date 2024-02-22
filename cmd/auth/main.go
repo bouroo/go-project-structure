@@ -152,4 +152,7 @@ func main() {
 	if datasources.RedisConn != nil && datasources.RedisConn.Client != nil {
 		datasources.RedisConn.Client.Close()
 	}
+	if datasources.UserGRPCConn != nil {
+		datasources.UserGRPCConn.CloseAll()
+	}
 }
