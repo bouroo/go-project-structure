@@ -45,7 +45,7 @@ go-project-structure/
 ├── internal/            # Private application and library code
 │   └── .../             # Specific application folder
 │       ├── handler/     # HTTP handlers
-│       ├── service/     # Business logic
+│       ├── usecase/     # Business logic
 │       └── repository/  # Data access
 ├── pkg/                 # Library code that's ok to use by external applications
 ├── web/                 # Web related files (static assets, templates)
