@@ -1,3 +1,3 @@
-module github.com/bouroo/go-clean-arch
+module github.com/bouroo/go-project-structure
 
-go 1.22.0
+go 1.22.3

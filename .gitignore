@@ -9,13 +9,27 @@
 *.dylib
 
 # Test binary, built with `go test -c`
+coverage.txt
 *.test
+*.tmp
 
-# Output of the go coverage tool, specifically when used with LiteIDE
-*.out
+# Output of the go coverage tool
+**/*.iml
+**/*.out
 
-# Dependency directories (remove the comment below to include it)
-# vendor/
+# IDE files
+.vscode
+.DS_Store
+.idea
 
-# Go workspace file
-go.work
+# Misc
+*.fiber.gz
+*.fasthttp.gz
+*.pprof
+*.workspace
+
+# Dependencies
+/vendor/
+vendor/
+vendor
+/Godeps/
